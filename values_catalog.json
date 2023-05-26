@@ -10,7 +10,7 @@
   "gf_origin_application_type": ["XX"],
   "gf_ffss_origin_appl_type":["XX"],
   "gf_cutoff_date": ["1993-08-11", "1993-01-01"],
-  "g_entific_id":["XX"],
+  "g_entific_id":["XX", "YY"],
   "g_research_scenario_type": ["XX"],
   "g_entity_id":["XX"],
   "g_catalog_id": ["A", "B", "C", "D"]
