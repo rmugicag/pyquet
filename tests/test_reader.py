@@ -1,6 +1,6 @@
 import os
 import unittest
-from pyquet.schemas import Reader
+from src.pyquet.schemas import Reader
 
 
 class ReaderTestCase(unittest.TestCase):
@@ -15,31 +15,31 @@ class ReaderTestCase(unittest.TestCase):
 
     def test_single_file(self):
         self.reader = Reader(os.path.join(self.schema_1))
-        self.assertDictEqual(self.reader.schemas[self.schema_1], {"test": "data1"})
+        self.assertDictEqual(self.reader.schemas_dict[self.schema_1], {"test": "data1"})
 
     def test_directory(self):
         self.reader = Reader(self.schemas_path)
-        self.assertDictEqual(self.reader.schemas[self.schema_1], {"test": "data1"})
-        self.assertDictEqual(self.reader.schemas[self.schema_2], {"test": "data2"})
-        self.assertDictEqual(self.reader.schemas[self.schema_3], {"test": "data3"})
+        self.assertDictEqual(self.reader.schemas_dict[self.schema_1], {"test": "data1"})
+        self.assertDictEqual(self.reader.schemas_dict[self.schema_2], {"test": "data2"})
+        self.assertDictEqual(self.reader.schemas_dict[self.schema_3], {"test": "data3"})
 
     def test_directory_without_schemas(self):
         self.reader = Reader(self.schemas_path_without_schemas)
-        self.assertDictEqual(self.reader.schemas, {})
+        self.assertDictEqual(self.reader.schemas_dict, {})
 
     def test_array(self):
         self.reader = Reader(self.schemas_list)
-        self.assertDictEqual(self.reader.schemas[self.schema_1], {"test": "data1"})
-        self.assertDictEqual(self.reader.schemas[self.schema_2], {"test": "data2"})
-        self.assertDictEqual(self.reader.schemas[self.schema_3], {"test": "data3"})
+        self.assertDictEqual(self.reader.schemas_dict[self.schema_1], {"test": "data1"})
+        self.assertDictEqual(self.reader.schemas_dict[self.schema_2], {"test": "data2"})
+        self.assertDictEqual(self.reader.schemas_dict[self.schema_3], {"test": "data3"})
 
     def test_invalid_file(self):
         self.reader = Reader(self.bad_schema)
-        self.assertDictEqual(self.reader.schemas, {})
+        self.assertDictEqual(self.reader.schemas_dict, {})
 
     def test_invalid_input_type(self):
         self.reader = Reader(123)
-        self.assertDictEqual(self.reader.schemas, {})
+        self.assertDictEqual(self.reader.schemas_dict, {})
 
 
 if __name__ == '__main__':
