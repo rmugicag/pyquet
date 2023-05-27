@@ -4,10 +4,10 @@ import re
 import string
 from datetime import datetime, timedelta
 from decimal import Decimal
-from pyquet import common
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
+from . import common
 
 
 class DataGenerator:
