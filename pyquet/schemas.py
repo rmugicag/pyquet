@@ -1,18 +1,18 @@
 import os.path
 import re
-
+from pyquet import common
 import pandas as pd
-
-from src.pyquet import common
 
 
 class Reader:
-    def __init__(self, arg, regex=None):
+    def __init__(self, arg, regex=".*.json"):
         self.schemas_dict = {}
+        print(arg)
         if isinstance(arg, str):
             if os.path.isdir(arg):
                 print("Reading schemas in directory:", arg)
                 schemas = common.list_files(arg, regex)
+                print(schemas)
                 if schemas:
                     for schema in schemas:
                         self.schemas_dict[schema] = common.read_json(schema)

@@ -4,9 +4,8 @@ import re
 import string
 from datetime import datetime, timedelta
 from decimal import Decimal
+from pyquet import common
 import pandas as pd
-from src.pyquet import common
-
 import pyarrow as pa
 import pyarrow.parquet as pq
 
@@ -57,8 +56,6 @@ class DataGenerator:
             os.makedirs(destination_path_dir)
         if os.path.isfile(destination_path):
             os.remove(destination_path)
-        for i in data:
-            print(i, data[i])
         df = pd.DataFrame(data)
         table = pa.Table.from_pandas(df)
         target_schema = pa.schema(pa.schema(field_format))
