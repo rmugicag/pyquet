@@ -1,6 +1,6 @@
 import os.path
 import re
-from pyquet import common
+from . import common
 import pandas as pd
 
 

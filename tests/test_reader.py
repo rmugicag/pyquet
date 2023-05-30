@@ -1,6 +1,6 @@
 import os
 import unittest
-from pyquet.schemas import Reader
+from src.schemas import Reader
 
 
 class ReaderTestCase(unittest.TestCase):
