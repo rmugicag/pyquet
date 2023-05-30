@@ -1,7 +1,7 @@
 import os.path
 import re
-from . import common
 import pandas as pd
+from . import common
 
 
 class Reader:
