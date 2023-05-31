@@ -7,7 +7,7 @@ from decimal import Decimal
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
-from src.pyquet import common
+from . import common
 
 
 class DataGenerator:
@@ -18,7 +18,6 @@ class DataGenerator:
         else:
             self.catalog = {}
             self.min_rows = num_rows
-
 
     def generate_data(self, schema_path, partitions=None, destination_dir="."):
         data = {}
@@ -138,7 +137,3 @@ class DataGenerator:
             time_list.append(date)
         time_list = pd.Series(time_list).apply(lambda x: datetime.strptime(x, date_format))
         return time_list
-
-
-generator = DataGenerator()
-generator.generate_data(r"C:\tmp\artifactory\schemas\gl\dx42\master\t_dx42_current_ffss\latest\t_dx42_current_ffss.output.schema", ["gf_cutoff_date"])
