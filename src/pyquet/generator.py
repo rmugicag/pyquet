@@ -7,15 +7,20 @@ from decimal import Decimal
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
-from . import common
+from src.pyquet import common
 
 
 class DataGenerator:
-    def __init__(self, catalog_path):
-        self.catalog = common.read_json(catalog_path)
-        self.min_rows = len(max(self.catalog.values(), key=lambda x: len(x)))
+    def __init__(self, catalog_path=None, num_rows=10):
+        if catalog_path:
+            self.catalog = common.read_json(catalog_path)
+            self.min_rows = len(max(self.catalog.values(), key=lambda x: len(x)))
+        else:
+            self.catalog = {}
+            self.min_rows = num_rows
 
-    def generate_data(self, schema_path, destination_dir="."):
+
+    def generate_data(self, schema_path, partitions=None, destination_dir="."):
         data = {}
         field_format = []
         schema = common.read_json(schema_path)
@@ -60,7 +65,7 @@ class DataGenerator:
         table = pa.Table.from_pandas(df)
         target_schema = pa.schema(pa.schema(field_format))
         table = table.cast(target_schema)
-        pq.write_table(table, destination_path)
+        pq.write_to_dataset(table, destination_path, partition_cols=partitions)
         return destination_path
 
     def generate_alphanumeric(self, name, size=1):
@@ -133,3 +138,7 @@ class DataGenerator:
             time_list.append(date)
         time_list = pd.Series(time_list).apply(lambda x: datetime.strptime(x, date_format))
         return time_list
+
+
+generator = DataGenerator()
+generator.generate_data(r"C:\tmp\artifactory\schemas\gl\dx42\master\t_dx42_current_ffss\latest\t_dx42_current_ffss.output.schema", ["gf_cutoff_date"])
