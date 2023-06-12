@@ -11,13 +11,16 @@ from . import common
 
 
 class DataGenerator:
-    def __init__(self, catalog_path=None, num_rows=10):
+    def __init__(self, catalog_path=None, num_rows=10, limit_rows=True):
         if catalog_path:
             self.catalog = common.read_json(catalog_path)
-            self.min_rows = num_rows
+            if limit_rows:
+                self.num_rows = len(max(self.catalog.values(), key=lambda x: len(x)))
+            else:
+                self.num_rows = num_rows
         else:
             self.catalog = {}
-            self.min_rows = num_rows
+            self.num_rows = num_rows
 
     def generate_data(self, schema_path, partitions=None, destination_dir="."):
         data = {}
@@ -69,7 +72,7 @@ class DataGenerator:
 
     def generate_alphanumeric(self, name, size=1):
         alphanumeric_list = []
-        for counter in range(self.min_rows):
+        for counter in range(self.num_rows):
             if name in self.catalog:
                 value = self.catalog[name][counter % len(self.catalog[name])]
             else:
@@ -79,7 +82,7 @@ class DataGenerator:
 
     def generate_int(self, name, size=1000):
         int_list = []
-        for counter in range(self.min_rows):
+        for counter in range(self.num_rows):
             if name in self.catalog:
                 value = self.catalog[name][counter % len(self.catalog[name])]
             else:
@@ -89,7 +92,7 @@ class DataGenerator:
 
     def generate_decimal(self, name, decimal_precision=12, decimal_scale=6):
         decimal_list = []
-        for counter in range(self.min_rows):
+        for counter in range(self.num_rows):
             if name in self.catalog:
                 value = self.catalog[name][counter % len(self.catalog[name])]
             else:
@@ -99,7 +102,7 @@ class DataGenerator:
 
     def generate_date(self, name, date_format='%Y-%m-%d'):
         date_list = []
-        for counter in range(self.min_rows):
+        for counter in range(self.num_rows):
             if name in self.catalog:
                 date = self.catalog[name][counter % len(self.catalog[name])]
             else:
@@ -111,7 +114,7 @@ class DataGenerator:
 
     def generate_timestamp(self, name, date_format='%Y-%m-%d %H:%M:%S'):
         timestamp_list = []
-        for counter in range(self.min_rows):
+        for counter in range(self.num_rows):
             if name in self.catalog:
                 date = self.catalog[name][counter % len(self.catalog[name])]
             else:
@@ -126,7 +129,7 @@ class DataGenerator:
 
     def generate_time(self, name, date_format='%H:%M:%S'):
         time_list = []
-        for counter in range(self.min_rows):
+        for counter in range(self.num_rows):
             if name in self.catalog:
                 date = self.catalog[name][counter % len(self.catalog[name])]
             else:
