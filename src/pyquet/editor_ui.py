@@ -77,7 +77,7 @@ class CustomToolbar(tk.Frame):
         self.table.save_csv()
 
 
-if __name__ == "__main__":
+def main():
     root = tk.Tk()
 
     table_frame = tk.Frame(root)
