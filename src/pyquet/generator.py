@@ -14,7 +14,7 @@ class DataGenerator:
     def __init__(self, catalog_path=None, num_rows=10):
         if catalog_path:
             self.catalog = common.read_json(catalog_path)
-            self.min_rows = len(max(self.catalog.values(), key=lambda x: len(x)))
+            self.min_rows = num_rows
         else:
             self.catalog = {}
             self.min_rows = num_rows
