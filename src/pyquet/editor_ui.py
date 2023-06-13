@@ -1,12 +1,10 @@
 import os.path
 import shutil
-from datetime import date
 
 import pandas as pd
 import tkinter as tk
 
 import traceback
-import pyarrow
 import pyarrow as pa
 import pyarrow.parquet as pq
 from tkinter import filedialog
@@ -17,7 +15,6 @@ class CustomTable(Table):
     def __init__(self, parent=None, **kwargs):
         Table.__init__(self, parent, **kwargs)
         self.partitions = []
-        self.pa_schema = None
         self.file_path = None
         self.schema = None
 
@@ -26,14 +23,14 @@ class CustomTable(Table):
         if self.file_path:
             try:
                 df = pd.read_parquet(self.file_path, dtype_backend="pyarrow")
-                self.schema = df.dtypes
-                for name, field in self.schema.items():
-                    if isinstance(field.pyarrow_dtype, pa.DictionaryType):
-                        self.partitions.append(name)
-                        self.schema[name] = pa.string()
-                self.pa_schema = pa.Schema.from_pandas(df)
-                for partition in self.partitions:
-                    self.schema[partition] = pa.string()
+                self.schema = pa.Schema.from_pandas(df)
+                self.partitions = [field.name for field in self.schema if isinstance(field.type, pa.DictionaryType)]
+                transformed_fields = [
+                    pa.field(field.name, pa.string())
+                    if field.type == pa.dictionary(pa.int32(), pa.string()) else field
+                    for field in self.schema
+                ]
+                self.schema = pa.schema(transformed_fields)
                 df_string = pd.read_parquet(self.file_path)
                 self.updateModel(TableModel(df_string))
             except pd.errors.ParserError:
@@ -53,7 +50,7 @@ class CustomTable(Table):
                     shutil.rmtree(file_path)
                 df = self.model.df
                 pa_table = pa.Table.from_pandas(df)
-                pa_table = pa_table.cast(self.pa_schema)
+                pa_table = pa_table.cast(self.schema)
                 pq.write_to_dataset(pa_table, file_path, partition_cols=self.partitions)
             except Exception as e:
                 print("An error occurred:", e)
@@ -90,3 +87,6 @@ def main():
     toolbar.pack(side=tk.TOP, fill=tk.X)
 
     root.mainloop()
+
+
+main()

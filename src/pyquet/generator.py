@@ -64,7 +64,10 @@ class DataGenerator:
         table = pa.Table.from_pandas(df)
         target_schema = pa.schema(pa.schema(field_format))
         table = table.cast(target_schema)
-        pq.write_to_dataset(table, destination_path, partition_cols=partitions)
+        if partitions:
+            pq.write_to_dataset(table, destination_path, partition_cols=partitions)
+        else:
+            pq.write_to_dataset(table, destination_path)
         return destination_path
 
     def generate_alphanumeric(self, name, size=1):
