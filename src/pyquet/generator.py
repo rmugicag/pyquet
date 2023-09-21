@@ -71,7 +71,7 @@ class DataGenerator:
             pq.write_to_dataset(table, destination_path, partition_cols=partitions)
         else:
             pq.write_to_dataset(table, destination_path)
-        return destination_path
+        return destination_path, target_schema
 
     def generate_alphanumeric(self, name, size=1):
         alphanumeric_list = []
