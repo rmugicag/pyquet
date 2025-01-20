@@ -22,11 +22,11 @@ class DataGenerator:
             self.catalog = {}
             self.num_rows = num_rows
 
-    def generate_data(self, schema_path, partitions=None, destination_dir="."):
+    def generate_data(self, schema_path, output_type, partitions=None, destination_dir=None):
         data = {}
         field_format = []
         schema = common.read_json(schema_path)
-        schema_physical_path = os.path.normpath(schema["physicalPath"])
+        schema_physical_path = os.path.normpath(schema["physicalPath"]).replace("\\", "/")
         for field in schema["fields"]:
             name = field["name"]
             data_type = field["logicalFormat"]
@@ -57,20 +57,28 @@ class DataGenerator:
             else:
                 print("Unrecognized logicalFormat:", data_type)
 
-        destination_path = os.path.abspath(destination_dir + "/" + schema_physical_path)
-        destination_path_dir = os.path.dirname(destination_path)
-        if not os.path.isdir(destination_path_dir):
-            os.makedirs(destination_path_dir)
+        if destination_dir:
+            destination_path = destination_dir
+            destination_path_dir = os.path.dirname(destination_path)
+            if not os.path.exists(destination_path_dir):
+                os.makedirs(destination_path_dir)
+        else:
+            destination_path = schema_physical_path[1:] if schema_physical_path.startswith("/") else schema_physical_path
+
+        print("Destination path:", destination_path)
+
         if os.path.isfile(destination_path):
             os.remove(destination_path)
         df = pd.DataFrame(data)
-        table = pa.Table.from_pandas(df)
         target_schema = pa.schema(pa.schema(field_format))
-        table = table.cast(target_schema)
-        if partitions:
+        if output_type == "csv":
+            df.to_csv(destination_path, index=False)
+        elif output_type == "parquet":
+            table = pa.Table.from_pandas(df)
+            table = table.cast(target_schema)
             pq.write_to_dataset(table, destination_path, partition_cols=partitions)
         else:
-            pq.write_to_dataset(table, destination_path)
+            print("Unrecognized output type:", output_type, "Valid options are: csv, parquet")
         return destination_path, target_schema
 
     def generate_alphanumeric(self, name, size=1):

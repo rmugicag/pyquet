@@ -1,6 +1,9 @@
 import os
 import unittest
-from src.pyquet.schemas import Reader
+
+from xmlrunner import XMLTestRunner
+
+from pyquet.modules.schemas import Reader
 
 
 class ReaderTestCase(unittest.TestCase):
@@ -43,4 +46,5 @@ class ReaderTestCase(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    with open('test-reports/results.xml', 'wb') as output:
+        unittest.main(testRunner=XMLTestRunner(output=output), verbosity=2)
