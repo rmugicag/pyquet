@@ -1,3 +1,4 @@
+import json
 import os.path
 import re
 import pandas as pd
@@ -15,19 +16,19 @@ class Reader:
                 print(schemas)
                 if schemas:
                     for schema in schemas:
-                        self.schemas_dict[schema] = common.read_json(schema)
+                        self._read_schema(schema)
                 else:
                     print("No schemas found in directory:", arg)
             elif os.path.isfile(arg):
                 if re.match(regex, arg):
                     print("Reading schema:", arg)
-                    self.schemas_dict[arg] = common.read_json(arg)
+                    self._read_schema(arg)
                 else:
                     print(arg, "is not a .json file.")
         elif isinstance(arg, list):
             print("Reading schemas:", ", ".join(arg))
             for schema in arg:
-                self.schemas_dict[schema] = common.read_json(schema)
+                self._read_schema(schema)
         else:
             print("Invalid input type.", arg)
         self.schemas_df = pd.DataFrame.from_dict(self.schemas_dict, orient="index")
@@ -36,6 +37,12 @@ class Reader:
         self.unique_fields = self.__get_unique_fields()
         self.unique_partitions = self.__get_unique_partitions()
         self.unique_data_types = self.__get_unique_data_types()
+
+    def _read_schema(self, path):
+        try:
+            self.schemas_dict[path] = common.read_json(path)
+        except json.JSONDecodeError:
+            print(f"Skipping invalid JSON file: {path}")
 
     def __get_unique_fields(self):
         return list({field["name"] for schema in self.schemas_dict.values() if "fields" in schema for field in

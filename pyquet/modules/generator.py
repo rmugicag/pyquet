@@ -22,7 +22,7 @@ class DataGenerator:
             self.catalog = {}
             self.num_rows = num_rows
 
-    def generate_data(self, schema_path, output_type, partitions=None, destination_dir=None):
+    def generate_data(self, schema_path, output_type, partitions=None, destination_path=None, destination_dir=None):
         data = {}
         field_format = []
         schema = common.read_json(schema_path)
@@ -57,13 +57,19 @@ class DataGenerator:
             else:
                 print("Unrecognized logicalFormat:", data_type)
 
-        if destination_dir:
-            destination_path = destination_dir
+        if destination_path:
+            destination_path_dir = os.path.dirname(destination_path)
+            if destination_path_dir and not os.path.exists(destination_path_dir):
+                os.makedirs(destination_path_dir)
+        else:
+            if destination_dir:
+                destination_path = os.path.join(destination_dir, schema_physical_path[1:] if schema_physical_path.startswith("/") else schema_physical_path)
+            else:
+                destination_path = schema_physical_path[1:] if schema_physical_path.startswith("/") else schema_physical_path
+
             destination_path_dir = os.path.dirname(destination_path)
             if not os.path.exists(destination_path_dir):
                 os.makedirs(destination_path_dir)
-        else:
-            destination_path = schema_physical_path[1:] if schema_physical_path.startswith("/") else schema_physical_path
 
         print("Destination path:", destination_path)
 
