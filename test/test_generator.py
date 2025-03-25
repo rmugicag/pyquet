@@ -8,7 +8,6 @@ import pyarrow.parquet as pq
 from datetime import datetime
 from decimal import Decimal
 from pyquet.modules.generator import DataGenerator
-from xmlrunner import XMLTestRunner
 
 
 class TestDataGenerator(unittest.TestCase):
@@ -107,4 +106,4 @@ class TestDataGenerator(unittest.TestCase):
 
 if __name__ == '__main__':
     with open('test-reports/results.xml', 'wb') as output:
-        unittest.main(testRunner=XMLTestRunner(output=output), verbosity=2)
+        unittest.main(verbosity=2)

@@ -1,4 +1,4 @@
-pandas==1.5.3
-numpy==1.21.6
-pyarrow==12.0.0
-pandastable==0.13.1
+pandastable
+pandas
+numpy>=2
+pyarrow>=1.0.0

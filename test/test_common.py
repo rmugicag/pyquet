@@ -3,7 +3,6 @@ import tempfile
 import os
 import json
 from pyquet.modules.common import read_json, list_files
-from xmlrunner import XMLTestRunner # noqa
 
 class TestCommonFunctions(unittest.TestCase):
 
@@ -42,4 +41,4 @@ class TestCommonFunctions(unittest.TestCase):
 
 if __name__ == '__main__':
     with open('test-reports/results.xml', 'wb') as output:
-        unittest.main(testRunner=XMLTestRunner(output=output), verbosity=2)
+        unittest.main(verbosity=2)

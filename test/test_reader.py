@@ -3,7 +3,6 @@ import unittest
 import json
 import tempfile
 from pyquet.modules.schemas import Reader
-from xmlrunner import XMLTestRunner
 
 class ReaderTestCase(unittest.TestCase):
     def setUp(self):
@@ -67,4 +66,4 @@ class ReaderTestCase(unittest.TestCase):
 
 if __name__ == '__main__':
     with open('test-reports/results.xml', 'wb') as output:
-        unittest.main(testRunner=XMLTestRunner(output=output), verbosity=2)
+        unittest.main(verbosity=2)

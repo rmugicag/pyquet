@@ -78,6 +78,8 @@ class DataGenerator:
         df = pd.DataFrame(data)
         target_schema = pa.schema(pa.schema(field_format))
         if output_type == "csv":
+            if not destination_path.endswith(".csv"):
+                destination_path += ".csv"
             df.to_csv(destination_path, index=False)
         elif output_type == "parquet":
             table = pa.Table.from_pandas(df)

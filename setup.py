@@ -18,7 +18,7 @@ with open(os.path.join(here, "requirements_dev.txt")) as f:
 
 setup(
     name='pyquet',
-    version='1.0.3',
+    version='1.0.4',
     description='Generate pseudorandom data from .json schemas',
     author='Ricardo Múgica',
     author_email='rmugicag@gmail.com',
