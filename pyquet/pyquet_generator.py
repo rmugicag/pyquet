@@ -1,3 +1,7 @@
+"""
+Pyquet CLI.
+"""
+
 import argparse
 import json
 import logging
@@ -7,6 +11,9 @@ from pyquet.modules.generator import DataGenerator
 
 
 def main():
+    """
+    Main function for the Pyquet generator.
+    """
     logging.info("Running Pyquet generator...")
     parser = argparse.ArgumentParser(description="Pyquet generator")
 
@@ -69,7 +76,7 @@ def main():
 
     if len(sys.argv) == 1:
         parser.print_help()
-        exit(0)
+        sys.exit(0)
 
     args = parser.parse_args()
 

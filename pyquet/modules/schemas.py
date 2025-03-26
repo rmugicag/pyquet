@@ -1,11 +1,21 @@
+"""
+This module contains the Reader class, which is used to read and process schema files.
+"""
+
 import json
 import os.path
 import re
+
 import pandas as pd
+
 from . import common
 
 
 class Reader:
+    """
+    A class used to read and process schema files.
+    """
+
     def __init__(self, arg, regex=".*.json"):
         self.schemas_dict = {}
         print(arg)
@@ -45,13 +55,19 @@ class Reader:
             print(f"Skipping invalid JSON file: {path}")
 
     def __get_unique_fields(self):
-        return list({field["name"] for schema in self.schemas_dict.values() if "fields" in schema for field in
-                     schema["fields"]})
+        return list({
+            field["name"] for schema in self.schemas_dict.values()
+            if "fields" in schema for field in schema["fields"]
+        })
 
     def __get_unique_partitions(self):
-        return list({partition for schema in self.schemas_dict.values() if "partitions" in schema for partition in
-                     schema["partitions"]})
+        return list({
+            partition for schema in self.schemas_dict.values()
+            if "partitions" in schema for partition in schema["partitions"]
+        })
 
     def __get_unique_data_types(self):
-        return list({field["logicalFormat"] for schema in self.schemas_dict.values() if "fields" in schema for field in
-                     schema["fields"]})
+        return list({
+            field["logicalFormat"] for schema in self.schemas_dict.values()
+            if "fields" in schema for field in schema["fields"]
+        })

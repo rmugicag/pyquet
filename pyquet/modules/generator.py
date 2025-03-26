@@ -1,34 +1,72 @@
+"""
+This module contains the DataGenerator class, which is used to generate data in various formats.
+"""
+
 import os.path
 import random
 import re
 import string
 from datetime import datetime, timedelta
 from decimal import Decimal
+
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
+
 from . import common
 
 
-
-
 class DataGenerator:
+    """
+    Class for generating data.
+    """
+
     def __init__(self, catalog_path=None, num_rows=10, limit_rows=True):
+        """
+        Initialize the DataGenerator with the catalog path and number of rows.
+
+        :param catalog_path: Path to the catalog file, defaults to None
+        :type catalog_path: str, optional
+        :param num_rows: Number of rows to generate, defaults to 10
+        :type num_rows: int, optional
+        :param limit_rows: Whether to limit rows based on catalog, defaults to True
+        :type limit_rows: bool, optional
+        """
         if catalog_path:
             self.catalog = common.read_json(catalog_path)
             if limit_rows:
-                self.num_rows = len(max(self.catalog.values(), key=lambda x: len(x)))
+                self.num_rows = len(max(self.catalog.values(), key=len))
             else:
                 self.num_rows = num_rows
         else:
             self.catalog = {}
             self.num_rows = num_rows
 
-    def generate_data(self, schema_path, output_type, partitions=None, destination_path=None, destination_dir=None):
+    def generate_data(self,
+                      schema_path,
+                      output_type,
+                      partitions=None,
+                      destination_path=None,
+                      destination_dir=None):
+        """
+        Generates data based on the schema and saves it to the specified location.
+
+        :param schema_path: Path to the schema file
+        :type schema_path: str
+        :param output_type: Type of output (e.g., 'csv', 'parquet')
+        :type output_type: str
+        :param partitions: List of partition columns, defaults to None
+        :type partitions: list, optional
+        :param destination_path: Path to save the generated data, defaults to None
+        :type destination_path: str, optional
+        :param destination_dir: Directory to save the generated data, defaults to None
+        :type destination_dir: str, optional
+        :return: Tuple of target path and target schema
+        :rtype: tuple
+        """
         data = {}
         field_format = []
         schema = common.read_json(schema_path)
-        schema_physical_path = os.path.normpath(schema["physicalPath"]).replace("\\", "/")
         for field in schema["fields"]:
             name = field["name"]
             data_type = field["logicalFormat"]
@@ -46,7 +84,8 @@ class DataGenerator:
                 decimal_scale = match.group(2)
                 decimal_scale = int(decimal_scale) if decimal_scale != "" else 0
                 data[name] = self.generate_decimal(name, decimal_precision, decimal_scale)
-                field_format.append((field["name"], pa.decimal128(decimal_precision, decimal_scale)))
+                field_format.append((field["name"],
+                                     pa.decimal128(decimal_precision, decimal_scale)))
             elif data_type.startswith("DATE"):
                 data[name] = self.generate_date(name)
                 field_format.append((field["name"], pa.date32()))
@@ -75,7 +114,7 @@ class DataGenerator:
         if os.path.isfile(target_path):
             os.remove(target_path)
         df = pd.DataFrame(data)
-        target_schema = pa.schema(pa.schema(field_format))
+        target_schema = pa.schema(field_format)
         if output_type == "csv":
             if not target_path.endswith(".csv"):
                 target_path += ".csv"
@@ -89,6 +128,16 @@ class DataGenerator:
         return target_path, target_schema
 
     def generate_alphanumeric(self, name, size=1):
+        """
+        Generates alphanumeric data.
+
+        :param name: Name of the field
+        :type name: str
+        :param size: Length of the alphanumeric string, defaults to 1
+        :type size: int, optional
+        :return: List of alphanumeric strings
+        :rtype: list
+        """
         alphanumeric_list = []
         for counter in range(self.num_rows):
             if name in self.catalog:
@@ -99,6 +148,16 @@ class DataGenerator:
         return alphanumeric_list
 
     def generate_int(self, name, size=1000):
+        """
+        Generates integer data.
+
+        :param name: Name of the field
+        :type name: str
+        :param size: Maximum value of the integer, defaults to 1000
+        :type size: int, optional
+        :return: List of integers
+        :rtype: list
+        """
         int_list = []
         for counter in range(self.num_rows):
             if name in self.catalog:
@@ -109,6 +168,18 @@ class DataGenerator:
         return int_list
 
     def generate_decimal(self, name, decimal_precision=12, decimal_scale=6):
+        """
+        Generates decimal data.
+
+        :param name: Name of the field
+        :type name: str
+        :param decimal_precision: Precision of the decimal, defaults to 12
+        :type decimal_precision: int, optional
+        :param decimal_scale: Scale of the decimal, defaults to 6
+        :type decimal_scale: int, optional
+        :return: List of decimals
+        :rtype: list
+        """
         decimal_list = []
         for counter in range(self.num_rows):
             if name in self.catalog:
@@ -119,6 +190,16 @@ class DataGenerator:
         return decimal_list
 
     def generate_date(self, name, date_format='%Y-%m-%d'):
+        """
+        Generates date data.
+
+        :param name: Name of the field
+        :type name: str
+        :param date_format: Format of the date, defaults to '%Y-%m-%d'
+        :type date_format: str, optional
+        :return: List of dates
+        :rtype: list
+        """
         date_list = []
         for counter in range(self.num_rows):
             if name in self.catalog:
@@ -131,6 +212,16 @@ class DataGenerator:
         return date_list
 
     def generate_timestamp(self, name, date_format='%Y-%m-%d %H:%M:%S'):
+        """
+        Generates timestamp data.
+
+        :param name: Name of the field
+        :type name: str
+        :param date_format: Format of the timestamp, defaults to '%Y-%m-%d %H:%M:%S'
+        :type date_format: str, optional
+        :return: List of timestamps
+        :rtype: list
+        """
         timestamp_list = []
         for counter in range(self.num_rows):
             if name in self.catalog:
@@ -142,10 +233,21 @@ class DataGenerator:
                                                     seconds=random.randint(0, 60))
                 date = date.strftime(date_format)
             timestamp_list.append(date)
-        timestamp_list = pd.Series(timestamp_list).apply(lambda x: datetime.strptime(x, date_format))
+        timestamp_list = pd.Series(timestamp_list).apply(lambda x: datetime.strptime(x,
+                                                                                     date_format))
         return timestamp_list
 
     def generate_time(self, name, date_format='%H:%M:%S'):
+        """
+        Generates time data.
+
+        :param name: Name of the field
+        :type name: str
+        :param date_format: Format of the time, defaults to '%H:%M:%S'
+        :type date_format: str, optional
+        :return: List of times
+        :rtype: list
+        """
         time_list = []
         for counter in range(self.num_rows):
             if name in self.catalog:
