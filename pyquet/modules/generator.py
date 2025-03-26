@@ -10,6 +10,8 @@ import pyarrow.parquet as pq
 from . import common
 
 
+
+
 class DataGenerator:
     def __init__(self, catalog_path=None, num_rows=10, limit_rows=True):
         if catalog_path:
@@ -58,36 +60,33 @@ class DataGenerator:
                 print("Unrecognized logicalFormat:", data_type)
 
         if destination_path:
-            destination_path_dir = os.path.dirname(destination_path)
-            if destination_path_dir and not os.path.exists(destination_path_dir):
-                os.makedirs(destination_path_dir)
+            target_path = destination_path
+        elif destination_dir:
+            target_path = os.path.join(destination_dir, schema["name"])
         else:
-            if destination_dir:
-                destination_path = os.path.join(destination_dir, schema_physical_path[1:] if schema_physical_path.startswith("/") else schema_physical_path)
-            else:
-                destination_path = schema_physical_path[1:] if schema_physical_path.startswith("/") else schema_physical_path
+            target_path = schema["physicalPath"]
 
-            destination_path_dir = os.path.dirname(destination_path)
-            if not os.path.exists(destination_path_dir):
-                os.makedirs(destination_path_dir)
+        target_dir = os.path.dirname(target_path)
+        if target_dir and not os.path.exists(target_dir):
+            os.makedirs(target_dir, exist_ok=True)
 
-        print("Destination path:", destination_path)
+        print("Writing data in:", target_path)
 
-        if os.path.isfile(destination_path):
-            os.remove(destination_path)
+        if os.path.isfile(target_path):
+            os.remove(target_path)
         df = pd.DataFrame(data)
         target_schema = pa.schema(pa.schema(field_format))
         if output_type == "csv":
-            if not destination_path.endswith(".csv"):
-                destination_path += ".csv"
-            df.to_csv(destination_path, index=False)
+            if not target_path.endswith(".csv"):
+                target_path += ".csv"
+            df.to_csv(target_path, index=False)
         elif output_type == "parquet":
             table = pa.Table.from_pandas(df)
             table = table.cast(target_schema)
-            pq.write_to_dataset(table, destination_path, partition_cols=partitions)
+            pq.write_to_dataset(table, target_path, partition_cols=partitions)
         else:
             print("Unrecognized output type:", output_type, "Valid options are: csv, parquet")
-        return destination_path, target_schema
+        return target_path, target_schema
 
     def generate_alphanumeric(self, name, size=1):
         alphanumeric_list = []
